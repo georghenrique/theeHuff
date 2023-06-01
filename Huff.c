@@ -1,30 +1,40 @@
 #include "Huff.h"
+#include "log.h"
 
-/*
-* A função strdup é dependente de implementação nas plataformas não POSIX (Windows, etc)
-* Segue uma implementação desta função como solução para o problema.
-*/
 
+/*Função que recebe uma string, calcula seu tamanho e add 1 espaço de memoria, retornando a string com o tamanho aumentado*/
 char *strdup(const char *s)
 {
-    char *p = malloc(strlen(s) + 1);
-    if (p) strcpy(p, s);
+    log_trace("strdup <-");
+    char *p = malloc(strlen(s) + 1);// calcula o comprimento da string, mas não inclui o caractere nulo de terminação.
+    if(p){
+        log_info("strcpy copia a string original para a nova string");
+        strcpy(p, s);//A strcpy()função copia a string apontada s(incluindo o caractere nulo) para o destino p.   
+    } 
+    log_trace("strdup ->\n");
     return p;
 }
 
-//função que cria um nó de uma árvore
+/*função que cria um nó do tipo NodeLista de uma árvore*/
 nodeLista *novoNodeLista(nodeArvore *nArv)
 {
-    // Aloca memória
+    log_info("cria um nó do tipo NodeLista");
+    log_trace("novoNodeLista <-");
     nodeLista *novo;
-    if ( (novo = malloc(sizeof(*novo))) == NULL ) return NULL;
+    novo = malloc(sizeof(*novo));
 
-    // Adiciona a árvore ao nó
+    if(novo == NULL){
+        log_error("ERRO** NÓ Ñ ALOCADO !!");
+        log_debug("novo: %p", novo);
+        log_trace("novoNodeLista ->\n");
+        return NULL;
+    }
+
     novo->n = nArv;
-
-    // Faz o campo próximo apontar para NULL
     novo->proximo = NULL;
-
+    log_debug("novo->proximo recebe NULL: %p", novo->proximo);
+    log_debug("Adiciona a árvore ao nó novo->n: %p", novo->proximo);
+    log_trace("novoNodeLista ->\n");
     return novo;
 }
 
@@ -34,26 +44,40 @@ nodeLista *novoNodeLista(nodeArvore *nArv)
 
 nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita)
 {
-    // Aloca memória
+    log_trace("novoNodeArvore <-");
+    log_info("cria um nó do tipo nodeArvore");
     nodeArvore *novo;
-
-    if ( ( novo = malloc(sizeof(*novo)) ) == NULL ) return NULL;
+    novo =  malloc(sizeof(*novo));
+    
+    if(novo == NULL){
+        log_error("ERRO** NÓ Ñ ALOCADO !!");
+        log_debug("novo: %p", novo);
+        log_trace("novoNodeArvore ->\n");
+        return NULL;
+    }
 
     // Atribui na árvore os valores passados como parâmetro
     novo->c = c;
     novo->frequencia = frequencia;
     novo->esquerda = esquerda;
     novo->direita = direita;
+    log_debug("novo->c recebe c: %c", novo->c);
+    log_debug("novo->frequencia recebe frequencia: %d", novo->frequencia);
+    log_debug("novo->esquerda recebe esquerda: %p", novo->esquerda);
+    log_debug("novo->direita recebe direita: %p", novo->direita);
 
+    log_trace("novoNodeArvore ->\n");
     return novo;
 }
 
 /** Função que um novo nó na lista encadeada que representa a fila de prioridade.
-* @param: um nó previamente criado, a lista que receberá o nó
+* um nó previamente criado, a lista que receberá o nó
 */
 
 void insereLista(nodeLista *n, lista *l)
 {
+    log_info("");
+    log_trace("insereLista <-");
     // Se a lista passada como parâmetro não tem um nó no início (vazia), insira o nó no início
     if (!l->head)
     {
@@ -94,11 +118,13 @@ void insereLista(nodeLista *n, lista *l)
 
     // Incrementa quantidade de elementos
     l->elementos++;
+    log_trace("insereLista ->\n");
+
 }
 
 /** Função que 'solta' o nó apontado por 'head' da lista (o de menor frequência)
 * (faz backup do nó e o desconecta da lista)
-* @param: uma lista encadeada.
+* uma lista encadeada.
 */
 
 nodeArvore *popMinLista(lista *l)
@@ -124,7 +150,7 @@ nodeArvore *popMinLista(lista *l)
 }
 
 /** Função que conta a frequência de ocorrências dos bytes de um dado arquivo
-* @param: um arquivo, uma lista de bytes
+* um arquivo, uma lista de bytes
 */
 
 void getByteFrequency(FILE *entrada, unsigned int *listaBytes)
@@ -152,7 +178,7 @@ void getByteFrequency(FILE *entrada, unsigned int *listaBytes)
 
 }
 
-#include <stdbool.h>
+//////////////////////////////////////////////////////////////////////////////////////
 
 //  Obtem o código começando no nó n, utilizando o byte salvo em 'c', preenchendo 'buffer', desde o bucket 'tamanho'
 

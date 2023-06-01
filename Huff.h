@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 
 //Definição do tipo de dados 'byte'
 //'unsigned char': É o tipo que consegue gravar no intervalo que vai de 0 a 255 bytes
