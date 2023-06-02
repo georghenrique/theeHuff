@@ -15,7 +15,7 @@ char *strdup(const char *s)
     return p;
 }
 
-/*função que cria um nó do tipo NodeLista de uma árvore*/
+/*função que cria um nó do tipo NodeLista de uma árvore, esses nós são usados para saber a qtd de frequencia que uma letra aparece*/
 nodeLista *novoNodeLista(nodeArvore *nArv)
 {
     log_info("cria um nó do tipo NodeLista");
@@ -37,7 +37,7 @@ nodeLista *novoNodeLista(nodeArvore *nArv)
     log_trace("novoNodeLista ->\n");
     return novo;
 }
-
+//função que cria os nós folhas de cada letra
 /** Função que faz alocação de memória e trata os ponteiros soltos acerca de nós da árvore
 *o byte a ser gravado no nó, a frequencia do byte, ponteiros para os nós filhos
 */
@@ -73,27 +73,35 @@ nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArv
 /** Função que um novo nó na lista encadeada que representa a fila de prioridade.
 * um nó previamente criado, a lista que receberá o nó
 */
-
-void insereLista(nodeLista *n, lista *l)
-{
-    log_info("");
+//função que add nós folha em uma lista simplismente ligada 
+void insereLista(nodeLista *n, lista *l){
+    log_info("função que add nós folha em uma lista simplismente ligada");
     log_trace("insereLista <-");
-    // Se a lista passada como parâmetro não tem um nó no início (vazia), insira o nó no início
-    if (!l->head)
-    {
+    
+    // Se a lista passada como parâmetro (lista *l) não tem um nó no início (vazia), insira o nó (nodeLista *n) no início
+    if (!l->head){
+        log_trace("if (!l->head) <-");
+        log_error("ERRO** A LISTA ESTÁ VAZIA");
+        log_info("ADD o nó N a primara posição da lista");
         l->head = n;
+        log_trace("if (!l->head) ->");
+
     }
 
-    // Se o campo 'frequência' do 'nó' parâmetro for menor que o campo 'frequência' do primeiro item (head)
-    // da lista, incluir o novo nó como head, e colocar o head antigo como next desse novo
-
-    else if (n->n->frequencia < l->head->n->frequencia)
-    {
+    /* Se o campo 'frequência' do 'nó' parâmetro (nodeLista *n) for menor que o campo 'frequência' do primeiro
+    item (head) da lista (Lista *l), incluir o novo nó como head, e colocar o head antigo como next desse novo*/
+    else
+        if(n->n->frequencia < l->head->n->frequencia){
+        log_trace("if (n->n->frequencia < l->head->n->frequencia) <-");
+        log_info("add os nos um apos o outro como fila");
         n->proximo = l->head;
         l->head = n;
+        log_info("n->proximo = l->head");
+        log_info("l->head = n");
+        log_trace("if (n->n->frequencia < l->head->n->frequencia) ->");
+
     }
-    else
-    {
+    else{
         // nó auxiliar que inicia apontando para o segundo nó da lista (head->proximo)
         nodeLista *aux = l->head->proximo;
         // nó auxiliar que inicia apontando para o primeiro nó da lista

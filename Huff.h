@@ -26,6 +26,7 @@ typedef struct nodeLista
     struct nodeLista *proximo;
 }nodeLista;
 
+//guarda o primeiro nó da lista (head) e a quantidade de elementos existentes na lista
 typedef struct lista
 {
     nodeLista *head;
