@@ -3,8 +3,7 @@
 
 
 /*Função que recebe uma string, calcula seu tamanho e add 1 espaço de memoria, retornando a string com o tamanho aumentado*/
-char *strdup(const char *s)
-{
+char *strdup(const char *s){
     log_trace("strdup <-");
     char *p = malloc(strlen(s) + 1);// calcula o comprimento da string, mas não inclui o caractere nulo de terminação.
     if(p){
@@ -16,8 +15,7 @@ char *strdup(const char *s)
 }
 
 /*função que cria um nó do tipo NodeLista de uma árvore, esses nós são usados para saber a qtd de frequencia que uma letra aparece*/
-nodeLista *novoNodeLista(nodeArvore *nArv)
-{
+nodeLista *novoNodeLista(nodeArvore *nArv){
     log_info("cria um nó do tipo NodeLista");
     log_trace("novoNodeLista <-");
     nodeLista *novo;
@@ -42,8 +40,7 @@ nodeLista *novoNodeLista(nodeArvore *nArv)
 *o byte a ser gravado no nó, a frequencia do byte, ponteiros para os nós filhos
 */
 
-nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita)
-{
+nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita){
     log_trace("novoNodeArvore <-");
     log_info("cria um nó do tipo nodeArvore");
     nodeArvore *novo;
@@ -135,8 +132,7 @@ void insereLista(nodeLista *n, lista *l){
 * uma lista encadeada.
 */
 
-nodeArvore *popMinLista(lista *l)
-{
+nodeArvore *popMinLista(lista *l){
 
     // Ponteiro auxilar que aponta para o primeiro nó da lista
     nodeLista *aux = l->head;
@@ -161,32 +157,34 @@ nodeArvore *popMinLista(lista *l)
 * um arquivo, uma lista de bytes
 */
 
-void getByteFrequency(FILE *entrada, unsigned int *listaBytes)
-{
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void getByteFrequency(FILE *entrada, unsigned int *listaBytes){
+    log_info("função que adiciona todos os caracteres no vetor listaBytes com seus valores da tabela ASCII");
+    log_trace("getByteFrequency <-");
 
     byte c;
-
-    /***
-    *
-    * fread( array/bloco de memoria , tamanho de cada elemento, quantos elementos, arquivo de entrada )
+    log_debug("criação de byte c: %d", c);
+    
+    /*
+    * o laço while percorrerá todo o arquivo (entrada) que foi passado como parametro
+    * fread( variavel q armazenará oq foi lido , tamanho de cada elemento, quantos elementos, arquivo de entrada )
+    * a função fread faz a leitura de todos os caracteres do arquivo a partir da inicio lendo de 1 em 1 byte e salva oq foi lido na variavel c que é atribuida ao vetor listabytes na posição correspondente ao valor ASCII do que foi lido
     * fread retorna a quantidade de blocos lidos com sucesso
-    *
-    * Faz a leitura de 1 bloco de tamanho 1 byte a partir do arquivo 'entrada'
-    * e salva no espaco de memoria de 'c'.
-    *
-    * Converte esse byte num valor decimal, acessa o bucket correspondente e incrementa o valor (frequência).
-    *
-    ***/
+    */
 
     while (fread(&c, 1, 1, entrada) >= 1)
     {
-        listaBytes[(byte)c]++;
+        log_debug("caracter: %c - valor ASCII: %d", c, c);
+        listaBytes[c]++;//guardo dentro do vetor o numero de vezes que o caracter lido aparece 
+        log_debug("caracter: %c, quantidade dentro do vetor: %d", c, listaBytes[c]);
+        //listaBytes[(byte)c]++; //testar sem o modificador de tipo
     }
-    rewind(entrada); // "rebobina o arquivo"
+    rewind(entrada); //"rebobina o arquivo, pois foi usado um ponteiro para navergarmos até o final do arquivo entrada"
+    log_trace("getByteFrequency ->\n");
 
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////////////
 
 //  Obtem o código começando no nó n, utilizando o byte salvo em 'c', preenchendo 'buffer', desde o bucket 'tamanho'
 
@@ -195,8 +193,7 @@ void getByteFrequency(FILE *entrada, unsigned int *listaBytes)
 / @param: nó para iniciar a busca, byte a ser buscado, buffer para salvar os nós percorridos, posição para escrever
 **/
 
-bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho)
-{
+bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho){
 
     // Caso base da recursão:
     // Se o nó for folha e o seu valor for o buscado, colocar o caractere terminal no buffer e encerrar
@@ -256,17 +253,21 @@ bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho)
 * @param: a fila de prioridade.
 */
 
-nodeArvore *BuildHuffmanTree(unsigned *listaBytes)
-{
-    // Lista com head apontando pra NULL e com campo 'elementos' valendo 0;
+nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
+    log_info("função que controi a arvore de Huffman");
+    log_trace("BuildHuffmanTree <-");
+
     lista l = {NULL, 0};
+    log_debug("var lista l é criada: head=NULL e elementos=0");
 
     // Popula usando a array 'listaBytes' (que contém as frequências) uma lista encadeada de nós.
     // Cada nó contém uma árvore.
     for (int i = 0; i < 256; i++)
     {
+        log_debug("teste do que está acontecendo: posição %d conteudo: %d", i, listaBytes[i]);
         if (listaBytes[i]) // Se existe ocorrência do byte
         {
+
             // Insere na lista 'l' um nó referente ao byte i e sua respectiva frequência (guardada em listaBytes[i]).
             // Faz os nós esquerdo e direito das árvores apontarem para NULL;
             insereLista(novoNodeLista(novoNodeArvore(i, listaBytes[i], NULL, NULL)), &l);
@@ -293,7 +294,8 @@ nodeArvore *BuildHuffmanTree(unsigned *listaBytes)
         // Reinsere o nó 'soma' na lista l
         insereLista(novoNodeLista(soma), &l);
     }
-
+    
+    log_trace("BuildHuffmanTree ->\n");
     return popMinLista(&l);
 }
 
@@ -301,8 +303,7 @@ nodeArvore *BuildHuffmanTree(unsigned *listaBytes)
 * @param: nó de uma (sub)árvore.
 */
 
-void FreeHuffmanTree(nodeArvore *n)
-{
+void FreeHuffmanTree(nodeArvore *n){
     // Caso base da recursão, enquanto o nó não for NULL
     if (!n) return;
     else
@@ -320,8 +321,7 @@ void FreeHuffmanTree(nodeArvore *n)
 * @param: arquivo para ler o byte, posição que se deseja mascarar o byte, byte a ser feita a checagem
 */
 
-int geraBit(FILE *entrada, int posicao, byte *aux )
-{
+int geraBit(FILE *entrada, int posicao, byte *aux ){
     // É hora de ler um bit?
     (posicao % 8 == 0) ? fread(aux, 1, 1, entrada) : NULL == NULL ;
 
@@ -333,8 +333,7 @@ int geraBit(FILE *entrada, int posicao, byte *aux )
 
 /** Função para notificar ausência do arquivo. Encerra o programa em seguida.
 */
-void erroArquivo()
-{
+void erroArquivo(){
     printf("Arquivo nao encontrado\n");
     exit(0);
 }
@@ -343,8 +342,7 @@ void erroArquivo()
 * @param: arquivo a comprimir, arquivo resultado da compressão
 */
 
-void CompressFile(const char *arquivoEntrada, const char *arquivoSaida)
-{
+void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
 
     clock_t inicio, final;
     double tempoGasto;
@@ -360,6 +358,7 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida)
     FILE *saida = fopen(arquivoSaida, "wb");
     (!saida) ? erroArquivo() : NULL == NULL ;
 
+    log_info("chamada da função getByteFrequency que armzena os caracyeres no vetor listaBytes");
     getByteFrequency(entrada, listaBytes);
 
     // Populando a árvore com a lista de frequência de bytes
@@ -450,8 +449,7 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida)
 * @param: arquivo a descomprimir, arquivo resultado da descompressão
 */
 
-void DecompressFile(const char *arquivoEntrada, const char *arquivoSaida)
-{
+void DecompressFile(const char *arquivoEntrada, const char *arquivoSaida){
 
     clock_t inicio, final;
     double tempoGasto;
@@ -514,8 +512,7 @@ void DecompressFile(const char *arquivoEntrada, const char *arquivoSaida)
 }
 
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
     // Caso os parâmetros informados sejam insuficientes
     if (argc < 4)
     {
