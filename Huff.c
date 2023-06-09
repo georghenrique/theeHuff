@@ -67,15 +67,15 @@ nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArv
     return novo;
 }
 
-/** Função que um novo nó na lista encadeada que representa a fila de prioridade.
-* um nó previamente criado, a lista que receberá o nó
-*/
-//função que add nós folha em uma lista simplismente ligada 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//função que add nós folha em uma lista simplismente ligada, levando em consideração a frequencia de cada caracter
+
 void insereLista(nodeLista *N, lista *l){
     log_info("função que add nós folha em uma lista simplismente ligada");
     log_trace("insereLista <-");
     
-    // Se a lista passada como parâmetro (lista *l) não tem um nó no início (vazia), insira o nó (nodeLista *n) no início
+    // Se a lista passada como parâmetro (lista *l) não tem um nó no início (vazia), insira o nó (nodeLista *N) no início
     if (!l->head){
         log_trace("if (!l->head) <-");
         log_error("ERRO** A LISTA ESTÁ VAZIA");
@@ -85,81 +85,86 @@ void insereLista(nodeLista *N, lista *l){
 
     }
 
-    /* Se o campo 'frequência' do 'nó' parâmetro (nodeLista *n) for menor que o campo 'frequência' do primeiro
+    /* Se o campo 'frequência' do 'nó' parâmetro (nodeLista *N) for menor que o campo 'frequência' do primeiro
     item (head) da lista (Lista *l), incluir o novo nó como head, e colocar o head antigo como next desse novo*/
     else
         if(N->n->frequencia < l->head->n->frequencia){
         log_trace("if (n->n->frequencia < l->head->n->frequencia) <-");
-        log_info("add os nos um apos o outro como fila");
+        log_info("N é add ao inicio da fila");
         N->proximo = l->head;
         l->head = N;
-        log_info("n->proximo = l->head");
-        log_info("l->head = n");
+        log_info("N->proximo aponta para o antigo inicio da fila");
+        log_info("l->head aponta para o N, o novo inicio da fila");
         log_trace("if (n->n->frequencia < l->head->n->frequencia) ->");
 
     }
     else{
-        // nó auxiliar que inicia apontando para o segundo nó da lista (head->proximo)
         nodeLista *aux = l->head->proximo;
-        log_debug("aux* = l->head->proximo: %p", l->head->proximo);
-        // nó auxiliar que inicia apontando para o primeiro nó da lista
+        log_debug("aux recebe o 2° nó da lista: aux = l->head->proximo: %p", aux);
         nodeLista *aux2 = l->head;
-
-        // Laço que percorre a lista e insere o nó na posição certa de acordo com sua frequência.
-        //
-        // Se sabe que aux começa apontando para o segundo item da lista e aux2 apontando para o primeiro.
-        // Sendo assim, os ponteiros seguirão mudando de posição enquanto aux não for o fim da lista,
-        // e enquanto a frequência do nó apontado por aux for menor ou igual a frequência do 'nó' parâmetro.
+        log_debug("aux2 recebe 1° nó da lista: aux2 = l->head: %p", aux2)
+        
+        /*
+        **Laço que percorre a lista e insere o nó na posição certa de acordo com sua frequência.
+        **sabemos que aux começa apontando para o segundo item da lista e aux2 apontando para o primeiro.
+        **assim, os ponteiros seguirão mudando de posição enquanto aux não for o fim da lista (NULL), 
+        e enquanto a frequência do nó apontado por aux for menor ou igual a frequência do 'nó' parâmetro, o laço continuará.
+        */
 
         while (aux && aux->n->frequencia <= N->n->frequencia)
         {
-            log_info("teste");
+            log_trace("while <-");
             aux2 = aux;
             aux = aux2->proximo;
+            log_debug("aux2 = aux");
+            log_debug("aux2 = aux2->proximo");
+            log_trace("while ->");
         }
 
-        // Se insere o nó na posição certa.
-        aux2->proximo = N;
-        N->proximo = aux;
+        aux2->proximo = N; //Insere o nó na posição certa.
+        N->proximo = aux; //N->proximo recebe o final da lista
     }
-
-    // Incrementa quantidade de elementos
     l->elementos++;
+    log_debug("Nº de elementos é incremetado: %d", l->elementos);
     log_trace("insereLista ->\n");
 
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Função que 'solta' o nó apontado por 'head' da lista (o de menor frequência)
-* (faz backup do nó e o desconecta da lista)
-* uma lista encadeada.
-*/
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Função que 'solta' o nó apontado por 'head' da lista (o de menor frequência), (faz backup do nó e o desconecta da lista) retornando-o.
 
 nodeArvore *popMinLista(lista *l){
+    log_info("Função que libera os nó folhas");
+    log_trace("popMinLista <-");
 
-    // Ponteiro auxilar que aponta para o primeiro nó da lista
     nodeLista *aux = l->head;
-
-    // Ponteiro auxiliar que aponta para a árvore contida em aux (árvore do primeiro nó da lista)
+    log_info("aux recebe o primeiro nóLista da lista: aux = l->haed");
+    
     nodeArvore *aux2 = aux->n;
+    log_info("aux2 recebe o primeiro NóArvore da lista: aux2 = aux->n");
 
     // Aponta o 'head' da lista para o segundo elemento dela
+    log_info("l->head aponta para o proximo NóLista da lista: l->head = aux->proximo");
     l->head = aux->proximo;
 
-    // Libera o ponteiro aux
+    log_info("aux é liberado");
     free(aux);
     aux = NULL;
 
-    // Decrementa a quantidade de elementos
     l->elementos--;
+    log_debug("l->elementos é decrementado: %d", l->elementos);
 
+    log_trace("popMinLista ->\n");
     return aux2;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Função que conta a frequência de ocorrências dos bytes de um dado arquivo
-* um arquivo, uma lista de bytes
-*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Função que conta a frequência de ocorrências dos caracteres do arquivo forneceido, gerando uma lista encadeada
+
 void getByteFrequency(FILE *entrada, unsigned int *listaBytes){
     log_info("função que assinala a frequencia de repetiçoes de cada carcter e add no vetor listaBytes");
     log_trace("getByteFrequency <-");
@@ -260,16 +265,14 @@ nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
     log_trace("BuildHuffmanTree <-");
 
     lista l = {NULL, 0};
-    log_info("var lista l é criada: head=NULL e elementos=0");
+    log_info("var lista l é criada e inicializada com head=NULL e elementos=0");
 
-    // Popula usando a array 'listaBytes' (que contém as frequências) uma lista encadeada de nós.
-    // Cada nó contém uma árvore.
+    //laço que percorrerá todo o vetor listaByte
     for (int i = 0; i < 256; i++)
     {
-        log_debug("teste do que está acontecendo: posição %d conteudo: %d", i, listaBytes[i]);
+        //log_debug("teste do que está acontecendo: posição %d conteudo: %d", i, listaBytes[i]);
         if (listaBytes[i]) // Se existe ocorrência do caracter
         {
-
             // Insere na lista 'l' um nó referente ao byte i e sua respectiva frequência (guardada em listaBytes[i]).
             // Faz os nós esquerdo e direito das árvores apontarem para NULL;
             insereLista(novoNodeLista(novoNodeArvore(i, listaBytes[i], NULL, NULL)), &l);
@@ -288,10 +291,7 @@ nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
         // Preenche com '#' o campo de caractere do nó da árvore.
         // Preenche o campo 'frequência' com a soma das frequências de 'nodeEsquerdo' e 'nodeDireito'.
         // Aponta o nó esquerdo para nodeEsquerdo e o nó direito para nodeDireito
-        nodeArvore *soma = novoNodeArvore(
-                               '#',
-                               nodeEsquerdo->frequencia + nodeDireito->frequencia, nodeEsquerdo, nodeDireito
-                           );
+        nodeArvore *soma = novoNodeArvore('#',nodeEsquerdo->frequencia + nodeDireito->frequencia, nodeEsquerdo, nodeDireito);
 
         // Reinsere o nó 'soma' na lista l
         insereLista(novoNodeLista(soma), &l);
