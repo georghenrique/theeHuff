@@ -71,7 +71,7 @@ nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArv
 * um nó previamente criado, a lista que receberá o nó
 */
 //função que add nós folha em uma lista simplismente ligada 
-void insereLista(nodeLista *n, lista *l){
+void insereLista(nodeLista *N, lista *l){
     log_info("função que add nós folha em uma lista simplismente ligada");
     log_trace("insereLista <-");
     
@@ -80,7 +80,7 @@ void insereLista(nodeLista *n, lista *l){
         log_trace("if (!l->head) <-");
         log_error("ERRO** A LISTA ESTÁ VAZIA");
         log_info("ADD o nó N a primara posição da lista");
-        l->head = n;
+        l->head = N;
         log_trace("if (!l->head) ->");
 
     }
@@ -88,11 +88,11 @@ void insereLista(nodeLista *n, lista *l){
     /* Se o campo 'frequência' do 'nó' parâmetro (nodeLista *n) for menor que o campo 'frequência' do primeiro
     item (head) da lista (Lista *l), incluir o novo nó como head, e colocar o head antigo como next desse novo*/
     else
-        if(n->n->frequencia < l->head->n->frequencia){
+        if(N->n->frequencia < l->head->n->frequencia){
         log_trace("if (n->n->frequencia < l->head->n->frequencia) <-");
         log_info("add os nos um apos o outro como fila");
-        n->proximo = l->head;
-        l->head = n;
+        N->proximo = l->head;
+        l->head = N;
         log_info("n->proximo = l->head");
         log_info("l->head = n");
         log_trace("if (n->n->frequencia < l->head->n->frequencia) ->");
@@ -101,6 +101,7 @@ void insereLista(nodeLista *n, lista *l){
     else{
         // nó auxiliar que inicia apontando para o segundo nó da lista (head->proximo)
         nodeLista *aux = l->head->proximo;
+        log_debug("aux* = l->head->proximo: %p", l->head->proximo);
         // nó auxiliar que inicia apontando para o primeiro nó da lista
         nodeLista *aux2 = l->head;
 
@@ -110,15 +111,16 @@ void insereLista(nodeLista *n, lista *l){
         // Sendo assim, os ponteiros seguirão mudando de posição enquanto aux não for o fim da lista,
         // e enquanto a frequência do nó apontado por aux for menor ou igual a frequência do 'nó' parâmetro.
 
-        while (aux && aux->n->frequencia <= n->n->frequencia)
+        while (aux && aux->n->frequencia <= N->n->frequencia)
         {
+            log_info("teste");
             aux2 = aux;
             aux = aux2->proximo;
         }
 
         // Se insere o nó na posição certa.
-        aux2->proximo = n;
-        n->proximo = aux;
+        aux2->proximo = N;
+        N->proximo = aux;
     }
 
     // Incrementa quantidade de elementos
@@ -159,7 +161,7 @@ nodeArvore *popMinLista(lista *l){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void getByteFrequency(FILE *entrada, unsigned int *listaBytes){
-    log_info("função que adiciona todos os caracteres no vetor listaBytes com seus valores da tabela ASCII");
+    log_info("função que assinala a frequencia de repetiçoes de cada carcter e add no vetor listaBytes");
     log_trace("getByteFrequency <-");
 
     byte c;
@@ -254,18 +256,18 @@ bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho){
 */
 
 nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
-    log_info("função que controi a arvore de Huffman");
+    log_info("função que contrói a arvore de Huffman");
     log_trace("BuildHuffmanTree <-");
 
     lista l = {NULL, 0};
-    log_debug("var lista l é criada: head=NULL e elementos=0");
+    log_info("var lista l é criada: head=NULL e elementos=0");
 
     // Popula usando a array 'listaBytes' (que contém as frequências) uma lista encadeada de nós.
     // Cada nó contém uma árvore.
     for (int i = 0; i < 256; i++)
     {
         log_debug("teste do que está acontecendo: posição %d conteudo: %d", i, listaBytes[i]);
-        if (listaBytes[i]) // Se existe ocorrência do byte
+        if (listaBytes[i]) // Se existe ocorrência do caracter
         {
 
             // Insere na lista 'l' um nó referente ao byte i e sua respectiva frequência (guardada em listaBytes[i]).
@@ -331,34 +333,45 @@ int geraBit(FILE *entrada, int posicao, byte *aux ){
     return !!((*aux) & (1 << (posicao % 8)));
 }
 
-/** Função para notificar ausência do arquivo. Encerra o programa em seguida.
-*/
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Função para notificar ausência do arquivo. Encerra o programa em seguida
 void erroArquivo(){
-    printf("Arquivo nao encontrado\n");
+    log_error("ERRO** O arquivo passado Ñ EXISTE!!");
     exit(0);
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Função que comprime um arquivo utilizando a compressão de huffman
 * @param: arquivo a comprimir, arquivo resultado da compressão
 */
 
 void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
+    log_info("Função que comprime o arquivo");
+    log_trace("CompressFile <-");
 
     clock_t inicio, final;
     double tempoGasto;
     inicio = clock();
 
     unsigned listaBytes[256] = {0};
+    log_debug("vetor para armazenar todos os carcteres é criado: listaBytes");
 
     // Abre arquivo do parâmetro arquivoEntrada no modo leitura de binário
     FILE *entrada = fopen(arquivoEntrada, "rb");
-    (!entrada) ? erroArquivo() : NULL == NULL ;
+    //Teste para ser se o arquivo existe
+    if(entrada ==NULL){
+        erroArquivo();
+    }
 
     // Abre arquivo do parâmetro arquivoSaida no modo escrita de binário
     FILE *saida = fopen(arquivoSaida, "wb");
-    (!saida) ? erroArquivo() : NULL == NULL ;
+    //Teste para ser se o arquivo existe
+    if(saida ==NULL){
+        erroArquivo();
+    }
 
-    log_info("chamada da função getByteFrequency que armzena os caracyeres no vetor listaBytes");
+    log_info("chamada da função getByteFrequency que armzena os caracteres no vetor listaBytes");
     getByteFrequency(entrada, listaBytes);
 
     // Populando a árvore com a lista de frequência de bytes
