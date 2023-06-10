@@ -259,6 +259,9 @@ bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho){
 * @param: a fila de prioridade.
 */
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//contrói a arvore com os cacertes fornecidos por listaBytes
 nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
     log_info("função que contrói a arvore de Huffman");
     log_trace("BuildHuffmanTree <-");
@@ -274,31 +277,35 @@ nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
         {
             // Insere na lista 'l' um nó referente ao byte i e sua respectiva frequência (guardada em listaBytes[i]).
             // Faz os nós esquerdo e direito das árvores apontarem para NULL;
+            log_debug("inserindo o caracter %c", i);
             insereLista(novoNodeLista(novoNodeArvore(i, listaBytes[i], NULL, NULL)), &l);
         }
     }
 
     while (l.elementos > 1) // Enquanto o número de elementos da lista for maior que 1
     {
-        // Nó esquerdo chama a função popMinLista() que vai na lista e pega a árvore fixada no primeiro nó
-        // (que é a que contém a menor frequência)
+        // Nó esquerdo chama a função popMinLista() que vai na lista e pega o NóArvore fixado no primeiro nó (que é a que contém a menor frequência)
         nodeArvore *nodeEsquerdo = popMinLista(&l);
 
         // Pega o outro nó que tem menor frequência
         nodeArvore *nodeDireito = popMinLista(&l);
 
-        // Preenche com '#' o campo de caractere do nó da árvore.
-        // Preenche o campo 'frequência' com a soma das frequências de 'nodeEsquerdo' e 'nodeDireito'.
-        // Aponta o nó esquerdo para nodeEsquerdo e o nó direito para nodeDireito
+        /*
+        **Preenche com '#' o campo de caractere do nó da árvore.
+        **Preenche o campo 'frequência' com a soma das frequências de 'nodeEsquerdo' e 'nodeDireito'.
+        **Aponta o nó esquerdo para nodeEsquerdo e o nó direito para nodeDireito
+        */
         nodeArvore *soma = novoNodeArvore('#',nodeEsquerdo->frequencia + nodeDireito->frequencia, nodeEsquerdo, nodeDireito);
 
-        // Reinsere o nó 'soma' na lista l
-        insereLista(novoNodeLista(soma), &l);
+        insereLista(novoNodeLista(soma), &l); // Reinsere o nó 'soma' na lista l
     }
     
     log_trace("BuildHuffmanTree ->\n");
     return popMinLista(&l);
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 /** Função que libera memória da árvore de huffman
 * @param: nó de uma (sub)árvore.
