@@ -14,6 +14,7 @@ char *strdup(const char *s){
     return p;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*função que cria um nó do tipo NodeLista de uma árvore, esses nós são usados para saber a qtd de frequencia que uma letra aparece*/
 nodeLista *novoNodeLista(nodeArvore *nArv){
     log_info("cria um nó do tipo NodeLista");
@@ -35,11 +36,11 @@ nodeLista *novoNodeLista(nodeArvore *nArv){
     log_trace("novoNodeLista ->\n");
     return novo;
 }
-//função que cria os nós folhas de cada letra
-/** Função que faz alocação de memória e trata os ponteiros soltos acerca de nós da árvore
-*o byte a ser gravado no nó, a frequencia do byte, ponteiros para os nós filhos
-*/
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//função que cria os nós folhas da arvore
 nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita){
     log_trace("novoNodeArvore <-");
     log_info("cria um nó do tipo nodeArvore");
@@ -66,11 +67,11 @@ nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArv
     log_trace("novoNodeArvore ->\n");
     return novo;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //função que add nós folha em uma lista simplismente ligada, levando em consideração a frequencia de cada caracter
-
 void insereLista(nodeLista *N, lista *l){
     log_info("função que add nós folha em uma lista simplismente ligada");
     log_trace("insereLista <-");
@@ -111,8 +112,7 @@ void insereLista(nodeLista *N, lista *l){
         e enquanto a frequência do nó apontado por aux for menor ou igual a frequência do 'nó' parâmetro, o laço continuará.
         */
 
-        while (aux && aux->n->frequencia <= N->n->frequencia)
-        {
+        while (aux && aux->n->frequencia <= N->n->frequencia){
             log_trace("while <-");
             aux2 = aux;
             aux = aux2->proximo;
@@ -134,7 +134,6 @@ void insereLista(nodeLista *N, lista *l){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Função que 'solta' o nó apontado por 'head' da lista (o de menor frequência), (faz backup do nó e o desconecta da lista) retornando-o.
-
 nodeArvore *popMinLista(lista *l){
     log_info("Função que libera os nó folhas");
     log_trace("popMinLista <-");
