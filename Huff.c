@@ -80,7 +80,7 @@ void insereLista(nodeLista *N, lista *l){
     if (!l->head){
         log_trace("if (!l->head) <-");
         log_error("ERRO** A LISTA ESTÁ VAZIA");
-        log_info("ADD o nó N a primara posição da lista");
+        log_info("ADD o nó N a primeira posição da lista");
         l->head = N;
         log_trace("if (!l->head) ->");
 
@@ -90,7 +90,7 @@ void insereLista(nodeLista *N, lista *l){
     item (head) da lista (Lista *l), incluir o novo nó como head, e colocar o head antigo como next desse novo*/
     else
         if(N->n->frequencia < l->head->n->frequencia){
-        log_trace("if (n->n->frequencia < l->head->n->frequencia) <-");
+        log_trace("IF (n->n->frequencia < l->head->n->frequencia) <-");
         log_info("N é add ao inicio da fila");
         N->proximo = l->head;
         l->head = N;
@@ -103,7 +103,7 @@ void insereLista(nodeLista *N, lista *l){
         nodeLista *aux = l->head->proximo;
         log_debug("aux recebe o 2° nó da lista: aux = l->head->proximo: %p", aux);
         nodeLista *aux2 = l->head;
-        log_debug("aux2 recebe 1° nó da lista: aux2 = l->head: %p", aux2)
+        log_debug("aux2 recebe 1° nó da lista: aux2 = l->head: %p", aux2);
         
         /*
         **Laço que percorre a lista e insere o nó na posição certa de acordo com sua frequência.
@@ -199,18 +199,23 @@ void getByteFrequency(FILE *entrada, unsigned int *listaBytes){
 / @param: nó para iniciar a busca, byte a ser buscado, buffer para salvar os nós percorridos, posição para escrever
 **/
 
-bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho){
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho){
+    log_info("");
+    log_trace("pegaCodigo <-");
     // Caso base da recursão:
     // Se o nó for folha e o seu valor for o buscado, colocar o caractere terminal no buffer e encerrar
 
-    if (!(n->esquerda || n->direita) && n->c == c)
-    {
+    if (!(n->esquerda || n->direita) && n->c == G){
+        log_trace("If-1 <-");
         buffer[tamanho] = '\0';
+        log_debug("var buffer na posição %i recebeu %c", tamanho, buffer[tamanho]);
+        log_trace("If-1 ->");
         return true;
     }
-    else
-    {
+    else{
         bool encontrado = false;
 
         // Se existir um nó à esquerda
@@ -220,13 +225,12 @@ bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho){
             buffer[tamanho] = '0';
 
             // fazer recursão no nó esquerdo
-            encontrado = pegaCodigo(n->esquerda, c, buffer, tamanho + 1);
+            encontrado = pegaCodigo(n->esquerda, G, buffer, tamanho + 1);
         }
 
-        if (!encontrado && n->direita)
-        {
+        if (!encontrado && n->direita){
             buffer[tamanho] = '1';
-            encontrado = pegaCodigo(n->direita, c, buffer, tamanho + 1);
+            encontrado = pegaCodigo(n->direita, G, buffer, tamanho + 1);
         }
         if (!encontrado)
         {
@@ -237,31 +241,9 @@ bool pegaCodigo(nodeArvore *n, byte c, char *buffer, int tamanho){
 
 }
 
-// Algoritmo para construir a árvore de huffman, inspirado no seguinte pseudocódigo:
-// http://www.cs.gettysburg.edu/~ilinkin/courses/Spring-2014/cs216/assignments/a8.html
-//
-// procedure BUILD-TREE(frequencies):
-//     pq ← make empty priority queue
-//     for each (symbol, key) in frequencies:
-//         h ← make a leaf node for the (symbol, key) pair
-//         INSERT(pq, h)
-//
-//     n ← size[pq]
-//     for i = 1 to n-1:
-//         h1 ← POP-MIN(pq)
-//         h2 ← POP-MIN(pq)
-//         h3 ← MAKE-NODE(h1, h2)
-//         INSERT(pq, h3)
-//
-//     return POP-MIN(pq)
-
-/** Função que constrói a árvore de huffman
-* @param: a fila de prioridade.
-*/
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//contrói a arvore com os cacertes fornecidos por listaBytes
+//Função que contrói a árvore de huffman com os cacertes fornecidos por listaBytes
 nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
     log_info("função que contrói a arvore de Huffman");
     log_trace("BuildHuffmanTree <-");
@@ -390,7 +372,7 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
     // É aqui que posteriormente será salvo o valor da variável 'tamanho'
     fseek(saida, sizeof(unsigned int), SEEK_CUR);
 
-    byte c;
+    byte G;
     unsigned tamanho = 0;
     byte aux = 0;
 
@@ -399,17 +381,17 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
     * fread retorna a quantidade de bytes lidos com sucesso
     *
     * Faz a leitura de 1 bloco de tamanho 1 byte a partir do arquivo 'entrada'
-    * e salva no espaco de memoria de 'c'.
+    * e salva no espaco de memoria de 'G'.
     ***/
 
-    while (fread(&c, 1, 1, entrada) >= 1)
+    while (fread(&G, 1, 1, entrada) >= 1)
     {
 
-        // Cria um buffer vazio
+        log_info("var é criada buffer e inicalizada com 0");
         char buffer[1024] = {0};
 
         // Busca o código começando no nó 'raiz', utilizando o byte salvo em 'c', preenchendo 'buffer', desde o bucket deste último
-        pegaCodigo(raiz, c, buffer, 0);
+        pegaCodigo(raiz, G, buffer, 0);
 
         // Laço que percorre o buffer
         for (char *i = buffer; *i; i++)
@@ -539,7 +521,7 @@ int main(int argc, char *argv[]){
         printf("Opcoes:\n");
         printf("\t-c\tComprime\n");
         printf("\t-x\tDescomprime\n");
-        printf("\nExemplo: ./huffman -c comprima.isso nisso.hx\n");
+        printf("\nExemplo: ./huff -c comprima.isso nisso.hx\n");
         return 0;
     }
 
@@ -552,7 +534,7 @@ int main(int argc, char *argv[]){
         else
         {
             printf("O arquivo resultante da compressao deve ter a extensao '.hx'.\n");
-            printf("Exemplo: \n\t./huffman -c comprima.isso nisso.hx\n");
+            printf("Exemplo: \n\t./huff -c comprima.isso nisso.hx\n");
             return 0;
         }
     }
@@ -565,22 +547,18 @@ int main(int argc, char *argv[]){
         else
         {
             printf("O arquivo a ser descomprimido deve ter a extensao '.hx'.\n");
-            printf("Exemplo: \n\t./huffman -x descomprime.hx nisso.extensao\n");
+            printf("Exemplo: \n\t./huff -x descomprime.hx nisso.extensao\n");
             return 0;
         }
     }
     else
     {
-        printf("Uso: huffman [OPCAO] [ARQUIVO] [ARQUIVO]\n\n");
+        printf("Uso: huff [OPCAO] [ARQUIVO] [ARQUIVO]\n\n");
         printf("Opcoes:\n");
         printf("\t-c\tComprime\n");
         printf("\t-x\tDescomprime\n");
         printf("\nExemplo: ./huffman -c comprima.isso nisso.hx\n");
         return 0;
     }
-
-    //CompressFile("meslo.ttf", "meslo.hx");
-    //DecompressFile("meslo.hx", "meslo_copy.ttf");
-
     return 0;
 }
