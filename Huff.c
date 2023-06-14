@@ -202,7 +202,7 @@ void getByteFrequency(FILE *entrada, unsigned int *listaBytes){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho){
+bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho1){
     log_info("");
     log_trace("pegaCodigo <-");
     // Caso base da recursão:
@@ -210,34 +210,38 @@ bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho){
 
     if (!(n->esquerda || n->direita) && n->c == G){
         log_trace("If-1 <-");
-        buffer[tamanho] = '\0';
-        log_debug("var buffer na posição %i recebeu %c", tamanho, buffer[tamanho]);
+        buffer[tamanho1] = '\0';
+        log_debug("valor de tamanho1: %c", tamanho1);
+        log_debug("var buffer na posição %i recebeu \0", tamanho1);
         log_trace("If-1 ->");
         return true;
     }
     else{
+        log_info("var encontrado recebe false");
         bool encontrado = false;
 
         // Se existir um nó à esquerda
-        if (n->esquerda)
-        {
+        if (n->esquerda){
             log_trace("If-2 n->esquerda <-");
-            
+            log_debug("valor de tamanho: %d", tamanho1);
             // Adicione '0' no bucket do buffer correspondente ao 'tamanho' nodeAtual
-            buffer[tamanho] = '0';
+            log_debug("buffer na posição %d recebe %d",tamanho1, tamanho1);
+            buffer[tamanho1] = '0';
 
             // fazer recursão no nó esquerdo
-            encontrado = pegaCodigo(n->esquerda, G, buffer, tamanho + 1);
+            encontrado = pegaCodigo(n->esquerda, G, buffer, tamanho1 + 1);
         }
 
         if (encontrado == true && n->direita){
-            buffer[tamanho] = '1';
-            encontrado = pegaCodigo(n->direita, G, buffer, tamanho + 1);
+            log_info("If-3 encontrado == true && n->direita <-");
+            log_debug("valor de tamanho: %d", tamanho1);
+            buffer[tamanho1] = '1';
+            encontrado = pegaCodigo(n->direita, G, buffer, tamanho1 + 1);
         }
-        if (encontrado == true)
-        {
-            log_trace("If-4 ?? <-");
-            buffer[tamanho] = '\0';
+        if (encontrado == true){
+            log_trace("If-4 encontrado == true <-");
+            log_debug("valor de tamanho: %d", tamanho1);
+            buffer[tamanho1] = '\0';
         }
         log_trace("pegaCodigo ->");
         return encontrado;
@@ -390,8 +394,9 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
 
     while (fread(&G, 1, 1, entrada) >= 1)
     {
-
+        log_trace("while <-");
         log_info("var é criada buffer e inicalizada com 0");
+        log_debug("valor anterior do buffer:  ");
         char buffer[1024] = {0};
 
         // Busca o código começando no nó 'raiz', utilizando o byte salvo em 'c', preenchendo 'buffer', desde o bucket deste último
