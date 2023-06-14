@@ -211,7 +211,7 @@ bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho1){
     if (!(n->esquerda || n->direita) && n->c == G){
         log_trace("If-1 <-");
         buffer[tamanho1] = '\0';
-        log_debug("valor de tamanho1: %c", tamanho1);
+        log_debug("valor de tamanho1: %d", tamanho1);
         log_debug("var buffer na posição %i recebeu \0", tamanho1);
         log_trace("If-1 ->");
         return true;
@@ -223,7 +223,7 @@ bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho1){
         // Se existir um nó à esquerda
         if (n->esquerda){
             log_trace("If-2 n->esquerda <-");
-            log_debug("valor de tamanho: %d", tamanho1);
+            log_debug("valor de tamanho1: %d", tamanho1);
             // Adicione '0' no bucket do buffer correspondente ao 'tamanho' nodeAtual
             log_debug("buffer na posição %d recebe %d",tamanho1, tamanho1);
             buffer[tamanho1] = '0';
@@ -234,13 +234,14 @@ bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho1){
 
         if (encontrado == true && n->direita){
             log_info("If-3 encontrado == true && n->direita <-");
-            log_debug("valor de tamanho: %d", tamanho1);
+            log_debug("valor de tamanho1: %d", tamanho1);
             buffer[tamanho1] = '1';
+            log_debug("buffer na posição %d recebe %d",tamanho1, 1);
             encontrado = pegaCodigo(n->direita, G, buffer, tamanho1 + 1);
         }
         if (encontrado == true){
             log_trace("If-4 encontrado == true <-");
-            log_debug("valor de tamanho: %d", tamanho1);
+            log_debug("valor de tamanho1: %d", tamanho1);
             buffer[tamanho1] = '\0';
         }
         log_trace("pegaCodigo ->");
@@ -413,6 +414,7 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
                 // que é o mesmo que jogar um '1' na posição denotada por 'tamanho % 8'
                 //aux = aux + pow(2, tamanho % 8);
                 aux = aux | (1 << (tamanho % 8));
+                log_debug("valor de aux: %d ou %c", aux, aux);
                 log_trace("If i == 1 ->");
             }
 
@@ -423,6 +425,7 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
             if (tamanho % 8 == 0){
                 log_trace("If tamanho mod 8 == 0 <-");
                 fwrite(&aux, 1, 1, saida);
+                log_debug("valor de aux: %d", aux);
                 // Zera a variável auxiliar
                 aux = 0;
                 log_trace("If tamanho mod 8 == 0 ->");
@@ -432,6 +435,7 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
 
     }
 
+    log_debug("valor de aux: %d", aux);
     // Escreve no arquivo o que sobrou
     fwrite(&aux, 1, 1, saida);
 
@@ -452,6 +456,8 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
     double tamanhoSaida = ftell(saida);
 
     FreeHuffmanTree(raiz);
+    log_debug("%s",arquivoEntrada);
+    
 
     printf("Arquivo de entrada: %s (%g bytes)\nArquivo de saida: %s (%g bytes)\nTempo gasto: %gs\n", arquivoEntrada, tamanhoEntrada / 1000, arquivoSaida, tamanhoSaida / 1000, tempoGasto);
     printf("Taxa de compressao: %d%%\n", (int)((100 * tamanhoSaida) / tamanhoEntrada));
