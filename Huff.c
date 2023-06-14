@@ -221,6 +221,8 @@ bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho){
         // Se existir um nó à esquerda
         if (n->esquerda)
         {
+            log_trace("If-2 n->esquerda <-");
+            
             // Adicione '0' no bucket do buffer correspondente ao 'tamanho' nodeAtual
             buffer[tamanho] = '0';
 
@@ -228,14 +230,16 @@ bool pegaCodigo(nodeArvore *n, byte G, char *buffer, int tamanho){
             encontrado = pegaCodigo(n->esquerda, G, buffer, tamanho + 1);
         }
 
-        if (!encontrado && n->direita){
+        if (encontrado == true && n->direita){
             buffer[tamanho] = '1';
             encontrado = pegaCodigo(n->direita, G, buffer, tamanho + 1);
         }
-        if (!encontrado)
+        if (encontrado == true)
         {
+            log_trace("If-4 ?? <-");
             buffer[tamanho] = '\0';
         }
+        log_trace("pegaCodigo ->");
         return encontrado;
     }
 
@@ -394,27 +398,33 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
         pegaCodigo(raiz, G, buffer, 0);
 
         // Laço que percorre o buffer
-        for (char *i = buffer; *i; i++)
-        {
+        for (char *i = buffer; *i; i++){
+            log_trace("for <-");
+
             // Se o caractere na posição nodeAtual for '1'
-            if (*i == '1')
-            {
+            if (*i == '1'){
+                log_trace("If i == 1 <-");
                 // 2 elevado ao resto da divisão de 'tamanho' por 8
                 // que é o mesmo que jogar um '1' na posição denotada por 'tamanho % 8'
                 //aux = aux + pow(2, tamanho % 8);
                 aux = aux | (1 << (tamanho % 8));
+                log_trace("If i == 1 ->");
             }
 
             tamanho++;
+            log_debug("tamanho é incrementado: %d", tamanho);
 
             // Já formou um byte, é hora de escrevê-lo no arquivo
-            if (tamanho % 8 == 0)
-            {
+            if (tamanho % 8 == 0){
+                log_trace("If tamanho mod 8 == 0 <-");
                 fwrite(&aux, 1, 1, saida);
                 // Zera a variável auxiliar
                 aux = 0;
+                log_trace("If tamanho mod 8 == 0 ->");
             }
+            log_trace("for ->");
         }
+
     }
 
     // Escreve no arquivo o que sobrou
