@@ -3,7 +3,7 @@
 
 
 /*Função que recebe uma string, calcula seu tamanho e add 1 espaço de memoria, retornando a string com o tamanho aumentado*/
-char *strdup(const char *s){
+/*char *strdup(const char *s){
     log_trace("strdup <-");
     char *p = malloc(strlen(s) + 1);// calcula o comprimento da string, mas não inclui o caractere nulo de terminação.
     if(p){
@@ -13,7 +13,7 @@ char *strdup(const char *s){
     log_trace("strdup ->\n");
     return p;
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*função que cria um nó do tipo NodeLista de uma árvore, esses nós são usados para saber a qtd de frequencia que uma letra aparece*/
 nodeLista *novoNodeLista(nodeArvore *nArv){
@@ -196,7 +196,7 @@ void getByteFrequency(FILE *entrada, unsigned int *listaBytes){
 
 /**
 / Função recursiva que percorre uma árvore de huffman e para ao encontrar o byte procurado (c)
-/ @param: nó para iniciar a busca, byte a ser buscado, buffer para salvar os nós percorridos, posição para escrever
+/ nó para iniciar a busca, byte a ser buscado, buffer para salvar os nós percorridos, posição para escrever
 **/
 
 
@@ -299,7 +299,7 @@ nodeArvore *BuildHuffmanTree(unsigned *listaBytes){
 
 
 /** Função que libera memória da árvore de huffman
-* @param: nó de uma (sub)árvore.
+* nó de uma (sub)árvore.
 */
 
 void FreeHuffmanTree(nodeArvore *n){
@@ -315,22 +315,6 @@ void FreeHuffmanTree(nodeArvore *n){
     }
 }
 
-/** Função que faz bitmasking no byte lido e retorna um valor booleano confirmando sua existência
-* Ideia do bitmasking surgiu da leitura de http://ellard.org/dan/www/CS50-95/s10.html
-* @param: arquivo para ler o byte, posição que se deseja mascarar o byte, byte a ser feita a checagem
-*/
-
-int geraBit(FILE *entrada, int posicao, byte *aux ){
-    // É hora de ler um bit?
-    (posicao % 8 == 0) ? fread(aux, 1, 1, entrada) : NULL == NULL ;
-
-    // Exclamação dupla converte para '1' (inteiro) se não for 0. Caso contrário, deixa como está (0)
-    // Joga '1' na casa binária 'posicao' e vê se "bate" com o byte salvo em *aux do momento
-    // Isso é usado para percorrer a árvore (esquerda e direita)
-    return !!((*aux) & (1 << (posicao % 8)));
-}
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Função para notificar ausência do arquivo. Encerra o programa em seguida
 void erroArquivo(){
@@ -340,7 +324,7 @@ void erroArquivo(){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /** Função que comprime um arquivo utilizando a compressão de huffman
-* @param: arquivo a comprimir, arquivo resultado da compressão
+* arquivo a comprimir, arquivo resultado da compressão
 */
 
 void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
@@ -467,82 +451,17 @@ void CompressFile(const char *arquivoEntrada, const char *arquivoSaida){
 
 }
 
-/** Função que descomprime um arquivo utilizando a compressão de huffman
-* @param: arquivo a descomprimir, arquivo resultado da descompressão
-*/
-
-void DecompressFile(const char *arquivoEntrada, const char *arquivoSaida){
-
-    clock_t inicio, final;
-    double tempoGasto;
-    inicio = clock();
-
-    unsigned listaBytes[256] = {0};
-
-    // Abre arquivo do parâmetro arquivoEntrada no modo leitura de binário
-    FILE *entrada = fopen(arquivoEntrada, "rb");
-    (!entrada) ? erroArquivo() : NULL == NULL ;
-
-    // Abre arquivo do parâmetro arquivoSaida no modo escrita de binário
-    FILE *saida = fopen(arquivoSaida, "wb");
-    (!saida) ? erroArquivo() : NULL == NULL ;
-
-    // Lê a lista de frequência que encontra-se nos primeiros 256 bytes do arquivo
-    fread(listaBytes, 256, sizeof(listaBytes[0]), entrada);
-
-    // Constrói árvore
-    nodeArvore *raiz = BuildHuffmanTree(listaBytes);
-
-    // Lê o valor dessa posição do stream para dentro da variável tamanho
-    unsigned tamanho;
-    fread(&tamanho, 1, sizeof(tamanho), entrada);
-
-    unsigned posicao = 0;
-    byte aux = 0;
-
-    // Enquanto a posicao for menor que tamanho
-    while (posicao < tamanho)
-    {
-        // Salvando o nodeArvore que encontramos
-        nodeArvore *nodeAtual = raiz;
-
-        // Enquanto nodeAtual não for folha
-        while ( nodeAtual->esquerda || nodeAtual->direita )
-        {
-            nodeAtual = geraBit(entrada, posicao++, &aux) ? nodeAtual->direita : nodeAtual->esquerda;
-        }
-
-        fwrite(&(nodeAtual->c), 1, 1, saida);
-    }
-
-    FreeHuffmanTree(raiz);
-
-    final = clock();
-    tempoGasto = (double)(final - inicio) / CLOCKS_PER_SEC;
-
-    fseek(entrada, 0L, SEEK_END);
-    double tamanhoEntrada = ftell(entrada);
-
-    fseek(saida, 0L, SEEK_END);
-    double tamanhoSaida = ftell(saida);
-
-    printf("Arquivo de entrada: %s (%g bytes)\nArquivo de saida: %s (%g bytes)\nTempo gasto: %gs\n", arquivoEntrada, tamanhoEntrada / 1000, arquivoSaida, tamanhoSaida / 1000, tempoGasto);
-    printf("Taxa de descompressao: %d%%\n", (int)((100 * tamanhoSaida) / tamanhoEntrada));
-
-    fclose(saida);
-    fclose(entrada);
-}
-
 
 int main(int argc, char *argv[]){
     // Caso os parâmetros informados sejam insuficientes
     if (argc < 4)
     {
-        printf("Uso: huffman [OPCAO] [ARQUIVO] [ARQUIVO]\n\n");
-        printf("Opcoes:\n");
+        printf("////////////////////////////////////////////////////\n");
+        printf("como usar|| ./huff -c [ARQUIVO A SER LIDO] [NOME DO NOVO ARQUIVO]\n\n");
+        printf("Opções||");
         printf("\t-c\tComprime\n");
-        printf("\t-x\tDescomprime\n");
-        printf("\nExemplo: ./huff -c comprima.isso nisso.hx\n");
+        printf("\nExemplo: ./huff -c comprima.isso comprimido.hx\n");
+        printf("////////////////////////////////////////////////////\n");
         return 0;
     }
 
@@ -559,26 +478,12 @@ int main(int argc, char *argv[]){
             return 0;
         }
     }
-    else if (strcmp("-x", argv[1]) == 0)
-    {
-        if (strstr(argv[2], ".hx"))
-        {
-            DecompressFile(argv[2], argv[3]);
-        }
-        else
-        {
-            printf("O arquivo a ser descomprimido deve ter a extensao '.hx'.\n");
-            printf("Exemplo: \n\t./huff -x descomprime.hx nisso.extensao\n");
-            return 0;
-        }
-    }
     else
     {
         printf("Uso: huff [OPCAO] [ARQUIVO] [ARQUIVO]\n\n");
-        printf("Opcoes:\n");
+        printf("Opcoes||");
         printf("\t-c\tComprime\n");
-        printf("\t-x\tDescomprime\n");
-        printf("\nExemplo: ./huffman -c comprima.isso nisso.hx\n");
+        printf("\nExemplo: ./huff -c comprima.isso comprimido.hx\n");
         return 0;
     }
     return 0;
